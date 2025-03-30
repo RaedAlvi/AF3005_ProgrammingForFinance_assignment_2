@@ -2,9 +2,9 @@ import streamlit as st
 from datetime import datetime
 import pandas as pd
 import plotly.graph_objects as go
-import uuid 
+import uuid
 
-
+# Initialize session state variables
 if "page" not in st.session_state:
     st.session_state.page = "landing"
 if "expenses" not in st.session_state:
@@ -17,17 +17,11 @@ if "investment_cost" not in st.session_state:
     st.session_state.investment_cost = 0
 if "monthly_budget" not in st.session_state:
     st.session_state.monthly_budget = 0
-if "timeline" not in st.session_state:
-    st.session_state.timeline = 0
+if "timeline" not in st.session_state or st.session_state.timeline == 0:
+    st.session_state.timeline = 12  # Default timeline set to 12 months
 
-
-
-
-# Add the heading and subheading
-import streamlit as st
-
+# **Landing Page**
 def landing_page():
-    # Apply CSS for styling and hover effect, and set the background color to black
     st.markdown(
         """
         <style>
@@ -74,7 +68,6 @@ def landing_page():
         """, unsafe_allow_html=True
     )
 
-    # Title with emojis, highlighted with hover effect
     st.markdown("<h1 class='hover-text'>💰 Welcome to Your Personal Finance Tracker!</h1>", unsafe_allow_html=True)
     st.markdown("### Let's help you save and track your finances like a pro! 🧮")
 
@@ -98,27 +91,20 @@ def landing_page():
         st.session_state.page = "savings"  # Navigate to the savings page
 
 
-
+# **Savings Page**
 def savings_page():
-    # Apply custom CSS for the Savings page
     st.markdown(
         """
         <style>
-            /* Apply a black background to the entire page */
             .stApp {
                 background-color: black !important;
                 color: white !important;
             }
-
-            /* Style the title */
             .stMarkdown h1 {
                 color: #ffa260;
                 font-size: 3.5em;
                 font-weight: bold;
-                transition: color 0.25s ease;
             }
-
-            /* Style for input fields */
             .stTextInput, .stSelectbox, .stButton {
                 background-color: #333 !important;
                 color: white !important;
@@ -127,37 +113,14 @@ def savings_page():
                 font-size: 1.2em;
                 border: 2px solid #555;
             }
-
-            /* Change button background on hover */
             .stButton:hover {
                 background-color: #f1ff5c !important;
                 color: black !important;
             }
-
-            /* Apply hover effect for text */
-            .element-container .stMarkdown p.hover-text {
-                background: none !important;
-                color: #ffa260 !important;
-                font-size: 1.5em !important;
-                font-weight: bold !important;
-                transition: color 0.25s, box-shadow 0.25s, transform 0.25s !important;
-                display: inline-block !important;
-                padding: 10px !important;
-                margin: 0 !important;
-            }
-
-            .element-container .stMarkdown p.hover-text:hover {
-                color: #f1ff5c !important;
-                box-shadow: 0 0.5em 0.5em -0.4em #f1ff5c !important;
-                transform: translateY(-0.25em) !important;
-                cursor: pointer !important;
-            }
-
         </style>
         """, unsafe_allow_html=True
     )
 
-    # Title with hover effect
     st.markdown("## 💸 Savings Goal Tracker 💸")
     st.markdown("### Let's start saving for your future!")
 
@@ -170,36 +133,28 @@ def savings_page():
 
     # Calculate remaining time
     time_remaining = int(timeline.split()[0])  # Extract the number of months
-    st.markdown(f"### According to your timeline, you have about {time_remaining} months to save!")
+    st.write(f"According to your timeline, you have about {time_remaining} months to save!")
 
-    # Add a cool CTA button to navigate to the budget tracker
+    # Save the selected timeline in session state
+    st.session_state.timeline = time_remaining  # Initialize timeline here
+
     if st.button("Go to Budget Tracker"):
         st.session_state.page = "budget"  # Navigate to the budget page
 
-    # Add some space and info for motivation
-    st.markdown("""
-    **💡 Tip:** Break your savings goal into smaller milestones and track your progress every month!
-    """, unsafe_allow_html=True)
-
+# **Budget Page**
 def budget_page():
     st.markdown(
         """
         <style>
-            /* Apply a black background to the entire page */
             .stApp {
-                background-color: #1e1e1e !important;
+                background-color: black !important;
                 color: white !important;
             }
-
-            /* Style the title */
             .stMarkdown h1 {
                 color: #ffa260;
                 font-size: 3.5em;
                 font-weight: bold;
-                transition: color 0.25s ease;
             }
-
-            /* Style for input fields */
             .stNumberInput, .stButton {
                 background-color: #333 !important;
                 color: white !important;
@@ -208,36 +163,16 @@ def budget_page():
                 font-size: 1.2em;
                 border: 2px solid #555;
             }
-
-            /* Change button background on hover */
             .stButton:hover {
                 background-color: #f1ff5c !important;
                 color: black !important;
             }
-
-            /* Apply hover effect for text */
-            .element-container .stMarkdown p.hover-text {
-                background: none !important;
-                color: #ffa260 !important;
-                font-size: 1.5em !important;
-                font-weight: bold !important;
-                transition: color 0.25s, box-shadow 0.25s, transform 0.25s !important;
-                display: inline-block !important;
-                padding: 10px !important;
-                margin: 0 !important;
-            }
-
-            .element-container .stMarkdown p.hover-text:hover {
-                color: #f1ff5c !important;
-                box-shadow: 0 0.5em 0.5em -0.4em #f1ff5c !important;
-                transform: translateY(-0.25em) !important;
-                cursor: pointer !important;
-            }
         </style>
         """, unsafe_allow_html=True
     )
-    st.title("Monthly Budget Tracker")
-    
+
+    st.title("💸Monthly Budget Tracker🎯")
+
     # Ask for monthly income, investment cost, and monthly savings target
     st.session_state.monthly_income = st.number_input(
         "What is your monthly income?", 
@@ -257,7 +192,7 @@ def budget_page():
         step=1000, 
         value=st.session_state.monthly_budget if st.session_state.monthly_budget >= 1 else 1
     )
-    
+
     # Define months list and set current month based on datetime
     months = ["January", "February", "March", "April", "May", "June", 
               "July", "August", "September", "October", "November", "December"]
@@ -266,7 +201,7 @@ def budget_page():
     for current_month in range(st.session_state.timeline):
         month_name = months[current_month]
         st.subheader(f"Month {month_name} Expenses:")
-        
+
         # Input for current month expenses with unique keys using uuid
         grocery = st.number_input(
             f"Enter Grocery expenses for {month_name}:",
@@ -280,17 +215,17 @@ def budget_page():
             value=st.session_state.expenses.get(month_name, {}).get("Entertainment", 0), 
             key=f"entertainment_{month_name}"
         )
-        
+
         st.write("Select the utility bills for this month:")
         utilities = ['Maintenance', 'Electricity', 'Gas', 'Water', 'Other']
-        
+
         selected_utilities = st.multiselect(
             f'Which utility bills would you like to track for {month_name}?',
             utilities, 
             default=list(st.session_state.expenses.get(month_name, {}).get("Utilities", {}).keys()), 
             key=f"utilities_{month_name}"
         )
-        
+
         # Create a dictionary to hold the utility values for the current month
         utility_values = {}
         for utility in selected_utilities:
@@ -311,7 +246,7 @@ def budget_page():
 
         # Display the bar chart after expenses for the current month
         display_monthly_expenses_vs_savings([month_name], st.session_state.expenses, st.session_state.monthly_income)
-        
+
         # Ask if the user wants to record expenses for the next month
         if current_month == st.session_state.timeline - 1:
             break  # Exit the loop if we've reached the last month
@@ -332,153 +267,39 @@ def budget_page():
     final_data = st.session_state.expenses.get(final_month, {"Grocery": 0, "Entertainment": 0, "Utilities": {}})
     total_expenses = (final_data["Grocery"] + final_data["Entertainment"] + sum(final_data["Utilities"].values()))
     remaining_budget = st.session_state.monthly_income - total_expenses
-        
+
     st.write(f"Total Expenses for {final_month}: ${total_expenses}")
     st.write(f"Remaining Budget for {final_month}: ${remaining_budget}")
-        
-    # Calculate the savings journey towards the investment goal for the last month
+
     savings_per_month = st.session_state.monthly_budget - total_expenses
     months_to_reach_goal = st.session_state.investment_cost / savings_per_month if savings_per_month > 0 else 0
-
-    # Calculate total savings over the months
-    total_savings = savings_per_month * st.session_state.timeline  # Accumulated savings
+    total_savings = savings_per_month * st.session_state.timeline
 
     st.write(f"Remaining Budget for {final_month}: ${remaining_budget}")
+
     # Check if the user has saved enough to purchase the item
     if total_savings >= st.session_state.investment_cost:
-        st.image("Emerald_badge.png", use_container_width=True,width=200)  # Display the Emerald Badge
+        st.image("Emerald_badge.png", use_container_width=True, width=200)  # Display the Emerald Badge
         st.success("🎉 You've now saved up enough to purchase your dream item! 🎉")
         st.write("You've now become a financial master. Congratulations on your success!")
-        st.write("🎉✨ **Each emerald has a unique ID across Pakistan** ✨🎉\n\n"
-         "🍽️🎉 **You can now get up to 70% off across all restaurants!** 🍽️💸\n\n"
-         "🎁🎉 **Enjoy your financial mastery!** 🎉🎁")
-
+        st.write("🚀Each Emerald has a specific ID which can be scanned and redeemed for upto 70% discount on any restaurant you visit!")
     else:
         st.write("🚧 Keep going! You're on the right track to achieving your goal!")
-    
+
     # Display the Savings Progress Line Chart
     display_progress_graph(st.session_state.investment_cost, months_to_reach_goal, savings_per_month)
-    
+
     if st.button("Go Back to Home Page", key="back_home"):
         st.session_state.page = "landing"
 
 
-def display_clustered_line_chart(expenses, monthly_income):
-    # Extract months from the expenses data
-    months = list(expenses.keys())  
-    total_expenses = []
-    savings = []
-
-    # Calculate total expenses and savings for each month
-    for month in months:
-        month_data = expenses[month]
-        grocery_expenses = month_data["Grocery"]
-        entertainment_expenses = month_data["Entertainment"]
-        utility_expenses = sum(month_data["Utilities"].values())  # Sum all utility values
-
-        total_expenses.append(grocery_expenses + entertainment_expenses + utility_expenses)
-        savings.append(monthly_income - total_expenses[-1])
-
-    # Debugging: Print out the expenses and savings data to verify
-    print("Expenses Data:", expenses)
-    print("Total Expenses:", total_expenses)
-    print("Savings Data:", savings)
-    print("Monthly Income:", monthly_income)
-    
-    # Check if the months, total_expenses, and savings lists have the same length
-    if len(months) != len(total_expenses) or len(months) != len(savings):
-        print("Data Length Mismatch! Check the lists.")
-    
-    # Create the clustered line chart
-    fig = go.Figure()
-
-    # Add expenses line (in red)
-    fig.add_trace(go.Scatter(
-        x=months,
-        y=total_expenses,
-        mode='lines+markers',
-        name='Total Expenses',
-        line=dict(color='red', width=4),
-        marker=dict(size=8)
-    ))
-
-    # Add savings line (in blue)
-    fig.add_trace(go.Scatter(
-        x=months,
-        y=savings,
-        mode='lines+markers',
-        name='Savings',
-        line=dict(color='blue', width=4),
-        marker=dict(size=8)
-    ))
-
-    # Update layout for dark theme
-    fig.update_layout(
-        title="Expenses vs Savings Comparison",
-        xaxis_title="Months",
-        yaxis_title="Amount ($)",
-        plot_bgcolor='black',
-        paper_bgcolor='black',
-        font=dict(color='white'),
-        title_x=0.5,
-        showlegend=True
-    )
-
-    # Display the clustered line chart
-    st.plotly_chart(fig, use_container_width=True, key="clustered_line_chart")
-
-
-# **Display Savings Progress Graph**
-def display_progress_graph(investment_cost, months_to_reach_goal, savings_per_month):
-    # Check if there is at least one month to plot
-    if int(months_to_reach_goal) < 1:
-        st.write("Savings progress chart cannot be displayed because your savings per month are too low to reach the goal.")
-        return
-
-    months = [i for i in range(1, int(months_to_reach_goal) + 1)]
-    savings = [savings_per_month * i for i in months]
-
-    # Create the plot
-    fig = go.Figure()
-
-    # Add the savings line
-    fig.add_trace(go.Scatter(
-        x=months,
-        y=savings,
-        mode='lines+markers',
-        name='Savings Progress',
-        line=dict(color='blue', width=4),
-        marker=dict(size=8)
-    ))
-
-    # Add the investment goal line
-    fig.add_trace(go.Scatter(
-        x=[months[0], months[-1]],
-        y=[investment_cost, investment_cost],
-        mode='lines',
-        name='Investment Goal',
-        line=dict(color='red', dash='dash')
-    ))
-
-    # Update layout for dark theme
-    fig.update_layout(
-        title="Savings Goal Progress",
-        xaxis_title="Months",
-        yaxis_title="Total Savings ($)",
-        plot_bgcolor='black',
-        paper_bgcolor='black',
-        font=dict(color='white'),
-        title_x=0.5,
-        showlegend=True
-    )
-    st.plotly_chart(fig)
 
 
 # **Display Monthly Expenses vs Savings Bar Chart**
 def display_monthly_expenses_vs_savings(months, expenses, monthly_income):
     expense_values = []
     savings_values = []
-    
+
     # Ensure the month exists in the expenses before accessing
     for month in months:
         if month in expenses:
@@ -523,9 +344,57 @@ def display_monthly_expenses_vs_savings(months, expenses, monthly_income):
         barmode='group',
         title_x=0.5
     )
-    
+
     # Provide a unique key for the plotly chart to avoid duplicate element ID error
     st.plotly_chart(fig, use_container_width=True, key=f"expenses_vs_savings_{uuid.uuid4()}")
+
+# **Display Savings Progress Graph**
+def display_progress_graph(investment_cost, months_to_reach_goal, savings_per_month):
+    # Check if there is at least one month to plot
+    if int(months_to_reach_goal) < 1:
+        st.write("Savings progress chart cannot be displayed because your savings per month are too low to reach the goal.")
+        return
+
+    months = [i for i in range(1, int(months_to_reach_goal) + 1)]
+    savings = [savings_per_month * i for i in months]
+
+    # Create the plot
+    fig = go.Figure()
+
+    # Add the savings line
+    fig.add_trace(go.Scatter(
+        x=months,
+        y=savings,
+        mode='lines+markers',
+        name='Savings Progress',
+        line=dict(color='blue', width=4),
+        marker=dict(size=8)
+    ))
+
+    # Add the investment goal line
+    fig.add_trace(go.Scatter(
+        x=[months[0], months[-1]],
+        y=[investment_cost, investment_cost],
+        mode='lines',
+        name='Investment Goal',
+        line=dict(color='red', dash='dash')
+    ))
+
+    # Update layout for dark theme
+    fig.update_layout(
+        title="Savings Goal Progress",
+        xaxis_title="Months",
+        yaxis_title="Total Savings ($)",
+        plot_bgcolor='black',
+        paper_bgcolor='black',
+        font=dict(color='white'),
+        title_x=0.5,
+        showlegend=True
+    )
+
+    st.plotly_chart(fig)
+
+
 
 # Main Flow Based on Current Page in Session State
 if st.session_state.page == "landing":
